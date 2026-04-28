@@ -1,0 +1,38 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+
+development:
+  <<: *default
+  database: game_15_on_ruby_development
+  username: <%= ENV["GAME_15_ON_RUBY_DEV_DATABASE_USERNAME"] %>
+  password: <%= ENV["GAME_15_ON_RUBY_DEV_DATABASE_PASSWORD"] %>
+
+
+test:
+  <<: *default
+  database: game_15_on_ruby_test
+  username: <%= ENV["GAME_15_ON_RUBY_DEV_DATABASE_USERNAME"] %>
+  password: <%= ENV["GAME_15_ON_RUBY_DEV_DATABASE_PASSWORD"] %>
+
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: game_15_on_ruby_production
+    username: game_15_on_ruby
+    password: <%= ENV["GAME_15_ON_RUBY_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *primary_production
+    database: game_15_on_ruby_production_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: game_15_on_ruby_production_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: game_15_on_ruby_production_cable
+    migrations_paths: db/cable_migrate
