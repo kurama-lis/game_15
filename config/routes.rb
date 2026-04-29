@@ -18,5 +18,8 @@ Rails.application.routes.draw do
   # Выход
   delete "/logout", to: "sessions#destroy"
 
+  post "games/new", to: "games#new_game"
+  post "games/move", to: "games#move"
+
 end
 

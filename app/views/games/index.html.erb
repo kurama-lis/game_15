@@ -1,19 +1,108 @@
-<div class="min-h-screen bg-gray-100 p-8">
-  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
-    <!-- Шапка с заголовком и кнопкой выхода -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-800">Пятнашки 15</h1>
+<style>
+    .puzzle-board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        aspect-ratio: 1 / 1;
+        max-width: 500px;
+        margin: 20px auto;
+    }
+    .puzzle-tile {
+        background: linear-gradient(145deg, #fbbf24, #f59e0b);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #78350f;
+        cursor: pointer;
+        transition: 0.1s ease-in-out;
+        box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+        border: none;
+        width: 100%;
+        height: 100%;
+    }
+    .puzzle-tile:hover {
+        transform: scale(0.96);
+    }
+    .empty {
+        background: #e5e7eb;
+        box-shadow: inset 0 0 0 2px #d1d5db;
+        cursor: default;
+    }
+    .empty:hover { transform: none; }
+    .btn-green { background: #10b981; color: white; padding: 0.5rem 1.2rem; border-radius: 2rem; font-weight: bold; border: none; cursor: pointer; }
+    .btn-red { background: #ef4444; color: white; padding: 0.5rem 1.2rem; border-radius: 2rem; font-weight: bold; border: none; cursor: pointer; }
+    .bg-gradient-nature { background: linear-gradient(135deg, #10b981, #047857); }
+</style>
 
-      <!-- Кнопка выхода -->
-      <%= button_to "Выйти", logout_path, method: :delete,
-                    class: "bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition",
-                    data: { confirm: "Вы уверены, что хотите выйти?" } %>
+<div class="bg-gradient-nature" style="min-height:100vh; padding:2rem;">
+  <div style="max-width:800px; margin:0 auto; background:rgba(255,255,240,0.95); border-radius:2rem; padding:1.5rem; box-shadow:0 20px 30px rgba(0,0,0,0.2);">
+
+    <!-- Шапка -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem;">
+      <h1 style="color:#065f46;">🧩 Пятнашки 15</h1>
+      <div style="display:flex; gap:0.75rem; align-items:center;">
+        <div style="background:white; border-radius:2rem; padding:0.2rem 1rem;">
+          ⏱️ <span id="timerDisplay">0</span> с
+        </div>
+        <div style="background:white; border-radius:2rem; padding:0.2rem 1rem;">
+          🎯 <span id="movesDisplay"><%= @moves %></span>
+        </div>
+        <%= button_to "🔄 Новая игра", games_new_path, method: :post, data: { turbo: false }, class: "btn-green" %>
+        <%= button_to "🚪 Выйти", logout_path, method: :delete, data: { confirm: "Выйти?" }, class: "btn-red" %>
+      </div>
     </div>
 
-    <!-- Заглушка для игрового поля -->
-    <div class="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
-      <p class="text-gray-500 text-lg">Здесь будет игровое поле</p>
-      <p class="text-gray-400 text-sm mt-2">Скоро появится</p>
+    <!-- Игровое поле 4x4 -->
+    <div class="puzzle-board">
+      <% if @board %>
+        <% @board.each_with_index do |tile, idx| %>
+          <% if tile == 0 %>
+            <div class="puzzle-tile empty"></div>
+          <% else %>
+            <%= button_to tile, games_move_path(tile_index: idx), method: :post, data: { turbo: false }, class: "puzzle-tile" %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Таблица рекордов -->
+    <div style="background:white; border-radius:1.5rem; padding:1rem; margin-top:1.5rem;">
+      <h3 style="text-align:center; color:#065f46;">🏆 Топ-10 рекордов 🏆</h3>
+      <table style="width:100%; border-collapse:collapse;">
+        <thead style="background:#d1fae5;">
+        <tr><th style="padding:8px;">#</th><th>Игрок</th><th>Время (с)</th><th>Ходы</th><th>Дата</th></tr>
+        </thead>
+        <tbody>
+        <% if @top_scores.any? %>
+          <% @top_scores.each_with_index do |score, i| %>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:8px; text-align:center;"><%= i+1 %></td>
+              <td style="padding:8px; text-align:center;"><%= score.user.nickname.presence || score.user.email.split('@').first %></td>
+              <td style="padding:8px; text-align:center;"><%= score.time_seconds %></td>
+              <td style="padding:8px; text-align:center;"><%= score.moves %></td>
+              <td style="padding:8px; text-align:center;"><%= score.created_at.strftime("%d.%m") %></td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr><td colspan="5" style="padding:1rem; text-align:center;">Нет рекордов</td></tr>
+        <% end %>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
+
+<script>
+    let startTimestamp = <%= @start_time %>;
+    function updateTimer() {
+        let now = Math.floor(Date.now() / 1000);
+        let elapsed = now - startTimestamp;
+        let timerSpan = document.getElementById('timerDisplay');
+        if (timerSpan) timerSpan.innerText = elapsed;
+    }
+    setInterval(updateTimer, 500);
+    updateTimer();
+</script>
