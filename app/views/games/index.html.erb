@@ -1,0 +1,19 @@
+<div class="min-h-screen bg-gray-100 p-8">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+    <!-- Шапка с заголовком и кнопкой выхода -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Пятнашки 15</h1>
+
+      <!-- Кнопка выхода -->
+      <%= button_to "Выйти", logout_path, method: :delete,
+                    class: "bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition",
+                    data: { confirm: "Вы уверены, что хотите выйти?" } %>
+    </div>
+
+    <!-- Заглушка для игрового поля -->
+    <div class="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
+      <p class="text-gray-500 text-lg">Здесь будет игровое поле</p>
+      <p class="text-gray-400 text-sm mt-2">Скоро появится</p>
+    </div>
+  </div>
+</div>
