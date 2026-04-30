@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
-  # Маршруты для аутентификации
-  get "/login", to: "sessions#new"
+  # Вход и выход
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"
 

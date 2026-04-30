@@ -34,6 +34,43 @@
     </script>
   <% end %>
 
+
+  <% if flash[:success] %>
+    <div class="flash-success" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 24px; border-radius: 40px; z-index: 10001; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-weight: bold;">
+      <%= flash[:success] %>
+    </div>
+    <script>
+        setTimeout(() => {
+            const el = document.querySelector('.flash-success');
+            if (el) el.style.display = 'none';
+        }, 3000);
+    </script>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="flash-alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 12px 24px; border-radius: 40px; z-index: 10001;">
+      <%= flash[:alert] %>
+    </div>
+    <script>
+        setTimeout(() => {
+            const el = document.querySelector('.flash-alert');
+            if (el) el.style.display = 'none';
+        }, 3000);
+    </script>
+  <% end %>
+
+  <% if flash[:notice] %>
+    <div class="flash-notice" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 12px 24px; border-radius: 40px; z-index: 10001;">
+      <%= flash[:notice] %>
+    </div>
+    <script>
+        setTimeout(() => {
+            const el = document.querySelector('.flash-notice');
+            if (el) el.style.display = 'none';
+        }, 3000);
+    </script>
+  <% end %>
+
     <%= yield %>
   </body>
 </html>
