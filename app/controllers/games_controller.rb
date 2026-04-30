@@ -32,7 +32,7 @@ class GamesController < ApplicationController
           time_seconds: elapsed,
           moves: session[:moves]
         )
-        flash[:success] = "Победа за #{elapsed} сек!"
+        flash[:success] = "🎉 Победа за #{elapsed} секунд, ходов: #{session[:moves]}! 🎉"
         reset_game
       end
     end

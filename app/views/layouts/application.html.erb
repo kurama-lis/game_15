@@ -25,6 +25,15 @@
   </head>
 
   <body>
+  <% if flash[:success] %>
+    <div class="flash-success" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 24px; border-radius: 40px; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+      <%= flash[:success] %>
+    </div>
+    <script>
+        setTimeout(() => document.querySelector('.flash-success').style.display = 'none', 3000);
+    </script>
+  <% end %>
+
     <%= yield %>
   </body>
 </html>
