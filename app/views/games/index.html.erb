@@ -58,7 +58,7 @@
           <% if tile == 0 %>
             <div class="puzzle-tile empty"></div>
           <% else %>
-            <%= button_to tile, games_move_path(tile_index: idx), method: :post, class: "puzzle-tile" %>
+            <%= button_to tile, games_move_path(tile_index: idx), method: :post, data: { turbo: false }, class: "puzzle-tile" %>
           <% end %>
         <% end %>
       <% end %>
@@ -91,43 +91,46 @@
 </div>
 
 <script>
-    // Данные из сервера
-    let gameActive = <%= @game_active %>;
-    let startTimestamp = <%= @start_time || 0 %>;
-    let timerInterval = null;
+    (function() {
+        // Получаем данные из сервера (переменные от Rails)
+        let gameActive = <%= @game_active.to_json %>;
+        let startTimestamp = <%= @start_time.to_i %>;
+        let timerInterval = null;
+        const timerElement = document.getElementById('timerDisplay');
 
-    function updateTimerDisplay() {
-        let timerSpan = document.getElementById('timerDisplay');
-        if (!timerSpan) return;
-
-        if (!gameActive || startTimestamp === 0) {
-            timerSpan.innerText = "0:00";
-            return;
+        function updateDisplay() {
+            if (!timerElement) return;
+            if (!gameActive || startTimestamp === 0) {
+                timerElement.innerText = "0:00";
+                return;
+            }
+            let now = Math.floor(Date.now() / 1000);
+            let elapsed = now - startTimestamp;
+            if (elapsed < 0) elapsed = 0;
+            let mins = Math.floor(elapsed / 60);
+            let secs = elapsed % 60;
+            timerElement.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
         }
 
-        let now = Math.floor(Date.now() / 1000);
-        let elapsed = now - startTimestamp;
-        if (elapsed < 0) elapsed = 0;
-        let mins = Math.floor(elapsed / 60);
-        let secs = elapsed % 60;
-        timerSpan.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
-    }
-
-    function stopTimer() {
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
         }
-    }
 
-    function startTimer() {
-        stopTimer();
-        updateTimerDisplay();
-        if (gameActive && startTimestamp > 0) {
-            timerInterval = setInterval(updateTimerDisplay, 1000);
+        function startTimer() {
+            stopTimer();
+            updateDisplay();
+            if (gameActive && startTimestamp > 0) {
+                timerInterval = setInterval(updateDisplay, 1000);
+            }
         }
-    }
 
-    // Запускаем таймер при загрузке страницы
-    startTimer();
+        // Запуск
+        startTimer();
+
+        // Для отладки: выводим состояние в консоль (удалить после проверки)
+        console.log("Game active:", gameActive, "Start time:", startTimestamp);
+    })();
 </script>
