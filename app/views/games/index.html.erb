@@ -38,7 +38,6 @@
 <div class="bg-gradient-nature" style="min-height:100vh; padding:2rem;">
   <div style="max-width:800px; margin:0 auto; background:rgba(255,255,240,0.95); border-radius:2rem; padding:1.5rem; box-shadow:0 20px 30px rgba(0,0,0,0.2);">
 
-    <!-- Шапка -->
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem;">
       <h1 style="color:#065f46;">🧩 Пятнашки 15</h1>
       <div style="display:flex; gap:0.75rem; align-items:center;">
@@ -53,7 +52,6 @@
       </div>
     </div>
 
-    <!-- Игровое поле 4x4 -->
     <div class="puzzle-board">
       <% if @board %>
         <% @board.each_with_index do |tile, idx| %>
@@ -66,7 +64,6 @@
       <% end %>
     </div>
 
-    <!-- Таблица рекордов -->
     <div style="background:white; border-radius:1.5rem; padding:1rem; margin-top:1.5rem;">
       <h3 style="text-align:center; color:#065f46;">🏆 Топ-10 рекордов 🏆</h3>
       <table style="width:100%; border-collapse:collapse;">
@@ -94,16 +91,43 @@
 </div>
 
 <script>
-    let startTimestamp = <%= @start_time %>;
-    function updateTimer() {
+    // Данные из сервера
+    let gameActive = <%= @game_active %>;
+    let startTimestamp = <%= @start_time || 0 %>;
+    let timerInterval = null;
+
+    function updateTimerDisplay() {
+        let timerSpan = document.getElementById('timerDisplay');
+        if (!timerSpan) return;
+
+        if (!gameActive || startTimestamp === 0) {
+            timerSpan.innerText = "0:00";
+            return;
+        }
+
         let now = Math.floor(Date.now() / 1000);
         let elapsed = now - startTimestamp;
+        if (elapsed < 0) elapsed = 0;
         let mins = Math.floor(elapsed / 60);
         let secs = elapsed % 60;
-        let formatted = mins + ":" + (secs < 10 ? "0" : "") + secs;
-        let timerSpan = document.getElementById('timerDisplay');
-        if (timerSpan) timerSpan.innerText = formatted;
+        timerSpan.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
     }
-    setInterval(updateTimer, 500);
-    updateTimer();
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function startTimer() {
+        stopTimer();
+        updateTimerDisplay();
+        if (gameActive && startTimestamp > 0) {
+            timerInterval = setInterval(updateTimerDisplay, 1000);
+        }
+    }
+
+    // Запускаем таймер при загрузке страницы
+    startTimer();
 </script>
